@@ -32,13 +32,13 @@ public class GoToPointTest extends CommandOpMode {
         register(otos, mecanum,lineFollower);
         waitForStart();
         schedule(new SequentialCommandGroup(new GoToPointCommand(mecanum, otos, new Pose2d(24,0,new Rotation2d(0)),0.5),
-                new GoToPointCommand(mecanum, otos, new Pose2d(24,-24,new Rotation2d(Math.PI/2)),0.5),
-                new GoToPointCommand(mecanum, otos, new Pose2d(50,-8,new Rotation2d(Math.PI/4)),2),
-                new GoToPointCommand(mecanum, otos, new Pose2d(50,62,new Rotation2d(Math.PI/2)),0.5),
+                new GoToPointCommand(mecanum, otos, new Pose2d(24,-36,new Rotation2d(Math.PI/2)),0.5),
+                new GoToPointCommand(mecanum, otos, new Pose2d(50,-8,new Rotation2d(Math.PI/4)),2,10).setEndWhenPast(true),
+                new GoToPointCommand(mecanum, otos, new Pose2d(50,62,new Rotation2d(Math.PI/2)),1).setEndWhenPast(true),
                 new GoToPointCommand(mecanum, otos, new Pose2d(50,72,new Rotation2d(Math.PI/2)),0.5),
                 new ParallelDeadlineGroup(new LineRelocalizeCommand(lineFollower,otos),new GoToPointCommand(mecanum, otos, new Pose2d(50,72,new Rotation2d(Math.PI/2)),0.0)),
-                new GoToPointCommand(mecanum, otos, new Pose2d(50,-8,new Rotation2d(Math.PI/2)),2),
-                new GoToPointCommand(mecanum, otos, new Pose2d(24,-24,new Rotation2d(Math.PI/2)),0.5),
+                new GoToPointCommand(mecanum, otos, new Pose2d(50,-8,new Rotation2d(Math.PI/2)),2).setEndWhenPast(true),
+                new GoToPointCommand(mecanum, otos, new Pose2d(24,-36,new Rotation2d(Math.PI/2)),0.5),
                 new GoToPointCommand(mecanum, otos, new Pose2d(0,0,new Rotation2d(0)))
         ));
 

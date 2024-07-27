@@ -26,28 +26,25 @@ public class GoToPointCommand extends CommandBase {
     Telemetry t = FtcDashboard.getInstance().getTelemetry();
     double tol = 1;
     double hTol = 0.1;
+    boolean endWhenPast = false;
+    Pose2d startPose;
+
 
 
     public GoToPointCommand(MecanumDriveSubsystem driveSubsystem, OTOSSubsystem otosSubsystem, Pose2d targetPose) {
-        drive = driveSubsystem;
-        otos = otosSubsystem;
-        target = targetPose;
-        addRequirements(drive, otos);
+        this(driveSubsystem,otosSubsystem,targetPose,1);
     }
     public GoToPointCommand(MecanumDriveSubsystem driveSubsystem, OTOSSubsystem otosSubsystem, Pose2d targetPose, double tolerance) {
-        drive = driveSubsystem;
-        otos = otosSubsystem;
-        target = targetPose;
-        addRequirements(drive, otos);
-        tol=tolerance;
+        this(driveSubsystem,otosSubsystem,targetPose,1,0.1);
     }
     public GoToPointCommand(MecanumDriveSubsystem driveSubsystem, OTOSSubsystem otosSubsystem, Pose2d targetPose, double tolerance, double hTolerance) {
         drive = driveSubsystem;
         otos = otosSubsystem;
         target = targetPose;
         addRequirements(drive, otos);
-        tol=tolerance;
+        tol = tolerance;
         hTol = hTolerance;
+        startPose = otos.getFTCLibPose();
     }
     public GoToPointCommand(MecanumDriveSubsystem driveSubsystem, OTOSSubsystem otosSubsystem, Pose2d targetPose, Telemetry telemetry) {
         drive = driveSubsystem;
@@ -55,6 +52,11 @@ public class GoToPointCommand extends CommandBase {
         target = targetPose;
         t = telemetry;
         addRequirements(drive, otos);
+        startPose = otos.getFTCLibPose();
+    }
+    public GoToPointCommand setEndWhenPast(boolean set) {
+        this.endWhenPast = set;
+        return this;
     }
     @Override
     public void execute() {
@@ -77,6 +79,13 @@ public class GoToPointCommand extends CommandBase {
     }
     @Override
     public boolean isFinished() {
+        if (endWhenPast) {
+            double xDir = Math.signum(target.getX()-startPose.getX());
+            double yDir = Math.signum(target.getY()-startPose.getY());
+            if (Math.signum(otos.getFTCLibPose().getX()-target.getX())==xDir&&Math.signum(otos.getFTCLibPose().getY()-target.getY())==yDir) {
+                return true;
+            }
+        }
         return target.getTranslation().getDistance(otos.getFTCLibPose().getTranslation())<tol &&
                 Utils.compare(target.getHeading(),otos.getFTCLibPose().getHeading(),hTol);
     }
