@@ -31,7 +31,8 @@ public class GoToPointTest extends CommandOpMode {
         MecanumDriveSubsystem mecanum = new MecanumDriveSubsystem(fr, fl, br, bl,telemetry);
         register(otos, mecanum,lineFollower);
         waitForStart();
-        schedule(new SequentialCommandGroup(new GoToPointCommand(mecanum, otos, new Pose2d(24,0,new Rotation2d(0)),0.5),
+        schedule(new SequentialCommandGroup(
+                new GoToPointCommand(mecanum, otos, new Pose2d(24,0,new Rotation2d(0)),0.5),
                 new GoToPointCommand(mecanum, otos, new Pose2d(24,-36,new Rotation2d(Math.PI/2)),0.5),
                 new GoToPointCommand(mecanum, otos, new Pose2d(50,-8,new Rotation2d(Math.PI/4)),2,10).setEndWhenPast(true),
                 new GoToPointCommand(mecanum, otos, new Pose2d(50,62,new Rotation2d(Math.PI/2)),1).setEndWhenPast(true),
