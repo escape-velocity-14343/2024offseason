@@ -1,9 +1,10 @@
 package org.firstinspires.ftc.teamcode.FastLane;
 
 import com.arcrobotics.ftclib.geometry.Pose2d;
+import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-// TODO: custom exit conditions (use lambdas), turn to point
+// TODO: custom exit conditions (use lambdas)
 
 /**
  * Waypoint class for autonomous navigation. Represents a single 3D point (x, y, heading).<br>
@@ -29,9 +30,9 @@ public class AutonomousWaypoint {
      */
     private static double DEFAULT_TIMEOUT = -1;
 
-    private Point waypoint;
-    private double tolerance;
-    private double headingTolerance;
+    protected Point waypoint;
+    protected double tolerance;
+    protected double headingTolerance;
 
     private ElapsedTime timeoutTimer;
     /**
@@ -39,8 +40,8 @@ public class AutonomousWaypoint {
      */
     private double timeout;
 
-    public static AutonomousWaypoint getRobotCentric(Point movement, Pose2d robotPose) {
-        return new AutonomousWaypoint(Point.fromPose2d(robotPose).offset(movement));
+    public static AutonomousWaypoint fromRobotCentric(Point movement, Pose2d robotPose) {
+        return new AutonomousWaypoint(Point.fromPose2d(robotPose).offset(movement).setHeading(movement.heading));
     }
 
     public static AutonomousWaypoint fromInvertibleWaypoint(InvertibleWaypoint waypoint) {
@@ -84,7 +85,7 @@ public class AutonomousWaypoint {
     }
 
     /**
-     * Call when you begin targetting the waypoint. Ensures timeout works properly.
+     * Call when you begin targeting the waypoint. Ensures timeout works properly.
      */
     public void beginTracking() {
         this.timeoutTimer.reset();
@@ -103,8 +104,40 @@ public class AutonomousWaypoint {
         return false;
     }
 
+    /**
+     * Returns the vector from the robot to the waypoint, from your robot's perspective.
+     * @return A robot-centric differential Pose2d where X is forward and Y is left.
+     */
+    public Pose2d getRobotCentricVector(Pose2d robotPose) {
+        Pose2d fcpose = getFieldCentricVector(robotPose);
+        double x = fcpose.getX();
+        double y = fcpose.getY();
 
-    private AutonomousWaypoint(Point p) {
+        // reverse heading to get correct vector
+        double h = -robotPose.getRotation().getRadians();
+
+        // rotate by -h (keep heading the same in the end)
+        return new Pose2d(Math.cos(h)*x - Math.sin(h)*y, Math.sin(h)*x + Math.cos(h)*y, new Rotation2d(-h));
+    }
+
+    /**
+     * Returns the vector from the robot to the waypoint, in a field-centric perspective.
+     */
+    public Pose2d getFieldCentricVector(Pose2d robotPose) {
+        return waypoint.difference(Point.fromPose2d(robotPose)).toPose2d();
+    }
+
+    /**
+     * Get the location of the waypoint, from a field-centric perspective.
+     */
+    public Point getPoint() {
+        return waypoint;
+    }
+
+    /**
+     * Internal constructor. Builds an AutonomousWaypoint based off a single point. Keep all other constructors referencing this one.
+     */
+    protected AutonomousWaypoint(Point p) {
         this.waypoint = p;
         this.tolerance = DEFAULT_TOLERANCE;
         this.headingTolerance = DEFAULT_HTOLERANCE;

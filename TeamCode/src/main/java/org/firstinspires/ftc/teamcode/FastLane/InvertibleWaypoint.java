@@ -27,7 +27,7 @@ public class InvertibleWaypoint {
     private static Point GLOBAL_AUDIENCE_OFFSET = new Point(0, 0, 0);
     private static Point GLOBAL_BLUE_OFFSET = new Point(0, 0, 0);
 
-    Point redBackstagePoint;
+    private Point redBackstagePoint;
 
     /**
      * This variable exists so we can account for different starting positions and still have individual offsets for the audience autos.
@@ -38,7 +38,6 @@ public class InvertibleWaypoint {
      * This variable exists so we can account for different starting positions and still have individual offsets for the blue autos.
      */
     private Point blueOffset = new Point(0, 0, 0);
-
 
     private boolean blueHeadingIsReversed = false;
 

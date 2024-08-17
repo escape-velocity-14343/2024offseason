@@ -25,11 +25,20 @@ public class Point {
         return this;
     }
 
+    public Point setHeading(double heading) {
+        this.heading = heading;
+        return this;
+    }
+
     public Point offset(Point p2) {
         this.x += p2.x;
         this.y += p2.y;
         this.heading += p2.heading;
         return this;
+    }
+
+    public Point difference(Point p2) {
+        return offset(p2.reverseX().reverseY().reverseHeading());
     }
 
     public Point offsetX(double x) {
