@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.FastLane;
 
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
+import com.arcrobotics.ftclib.geometry.Vector2d;
 
 public class Point {
     public double x;
@@ -80,6 +81,10 @@ public class Point {
 
     public Pose2d toPose2d() {
         return new Pose2d(this.x, this.y, new Rotation2d(this.heading));
+    }
+
+    public Vector2d toVector2d() {
+        return new Vector2d(this.x, this.y);
     }
 
     public static double distance(Point p1, Point p2) {
