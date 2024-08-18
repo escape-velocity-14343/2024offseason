@@ -154,6 +154,10 @@ public class InvertibleWaypoint {
         return AutonomousWaypoint.fromInvertibleWaypoint(this);
     }
 
+    public AutonomousTrackingWaypoint toAutonomousTrackingWaypoint(Point trackingPoint) {
+        return new AutonomousTrackingWaypoint(this.getPoint(), trackingPoint);
+    }
+
     /**
      * Euclidean distance between two InvertibleWaypoints.
      */

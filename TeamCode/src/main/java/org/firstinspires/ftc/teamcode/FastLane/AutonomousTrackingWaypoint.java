@@ -17,7 +17,7 @@ public class AutonomousTrackingWaypoint extends AutonomousWaypoint {
         return new AutonomousTrackingWaypoint(Point.fromPose2d(robotPose).difference(movement).setHeading(movement.heading), trackingPoint);
     }
 
-    private AutonomousTrackingWaypoint(Point p, Point trackingPoint) {
+    public AutonomousTrackingWaypoint(Point p, Point trackingPoint) {
         super(p);
         this.trackingPoint = trackingPoint;
         // prevent heading from exiting

@@ -17,4 +17,5 @@ public interface Odometry {
     public Pose2d getVelocity();
 
     public Pose2d getProjectedPose();
+
 }

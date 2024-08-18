@@ -23,6 +23,8 @@ public class FastLaneController {
 
     private double[] movementVector = new double[]{0.0, 0.0, 0.0};
 
+    private boolean done = false;
+
     public FastLaneController(double robotRadius, Odometry odometry, PIDFController headingController) {
         this.robotRadius = robotRadius;
         this.odometry = odometry;
@@ -31,6 +33,7 @@ public class FastLaneController {
 
     public void setWaypoints(AutonomousWaypoint... waypoints) {
         this.waypoints = waypoints;
+        this.done = false;
     }
 
     public void setObstacles(FieldObstacle... obstacles) {
@@ -48,12 +51,16 @@ public class FastLaneController {
         return movementVector;
     }
 
+    public boolean isDone() {
+        return this.done;
+    }
+
     public void update() {
         if (index + 1 != waypoints.length) {
             if (this.waypoints[index + 1].exit(odometry.getProjectedPose())) {
                 index++;
                 if (index + 1 == waypoints.length) {
-                    // TODO: add end state feedback
+                    this.done = true;
                 }
             }
         }
