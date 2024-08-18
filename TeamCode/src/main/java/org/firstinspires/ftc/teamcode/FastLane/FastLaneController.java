@@ -8,8 +8,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import kotlin.NotImplementedError;
 
-// TODO: collision detection
-
 /**
  * Primary controller for the FastLane Path Following system.
  */
