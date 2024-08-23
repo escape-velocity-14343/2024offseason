@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.FastLane;
 
+import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Vector2d;
 
 /**
@@ -47,5 +48,9 @@ public class FieldObstacle {
 
         return d.magnitude() < r + robotR;
 
+    }
+
+    public double getDistance(Pose2d robotPose) {
+        return Point.distance(Point.fromPose2d(robotPose), new Point(x, y, r));
     }
 }
