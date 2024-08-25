@@ -127,7 +127,7 @@ public class FastLaneController {
         // the robot has not found a path and we should stop (something is blocking t=0 so we shouldn't go that way either)
         // TODO: change this to a movement case
         if (!hasPath) {
-            throw new RuntimeException("the robot can't find a path");w
+            throw new RuntimeException("the robot can't find a path");
         }
 
 
