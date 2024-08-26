@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.FastLane;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -11,19 +12,20 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Has built-in exit condition checking (tolerance, timeout), with support for additional
  * exit conditions.
  */
+@Config
 public class AutonomousWaypoint {
 
-    private static double DEFAULT_TOLERANCE = 0.5;
+    public static double DEFAULT_TOLERANCE = 0.5;
     /**
      * Default heading tolerance. In radians.
      */
-    private static double DEFAULT_HTOLERANCE = Math.toRadians(5);
+    public static double DEFAULT_HTOLERANCE = Math.toRadians(5);
 
-    private static double DEFAULT_STRICT_TOLERANCE = 0.1;
+    public static double DEFAULT_STRICT_TOLERANCE = 0.1;
     /**
      * Default strict heading tolerance. In radians.
      */
-    private static double DEFAULT_STRICT_HTOLERANCE = Math.toRadians(1);
+    public static double DEFAULT_STRICT_HTOLERANCE = Math.toRadians(1);
 
     /**
      * Default timeout. Set to -1 for infinity.
@@ -91,13 +93,16 @@ public class AutonomousWaypoint {
         this.timeoutTimer.reset();
     }
 
-    public boolean exit(Pose2d robotPose) {
+    public boolean exit(Pose2d robotPose, Pose2d robotVelocity) {
         if (timeoutTimer.seconds() > timeout && timeout >= 0) {
             return true;
         }
 
         Point robotPos = Point.fromPose2d(robotPose);
-        if (Math.abs(waypoint.heading - robotPos.heading) < headingTolerance && Point.distance(waypoint, robotPos) < tolerance) {
+        if (Math.abs(waypoint.heading - robotPos.heading) < headingTolerance
+                && Point.distance(waypoint, robotPos) < tolerance
+               //&& Point.distance(Point.fromPose2d(robotVelocity), new Point(0, 0, 0)) < tolerance)
+        ){
             return true;
         }
 

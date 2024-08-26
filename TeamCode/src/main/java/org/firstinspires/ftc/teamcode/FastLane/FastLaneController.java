@@ -1,10 +1,14 @@
 package org.firstinspires.ftc.teamcode.FastLane;
 
+import android.util.Log;
+
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.geometry.Vector2d;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import java.security.InvalidParameterException;
 
 import kotlin.NotImplementedError;
 
@@ -26,6 +30,7 @@ public class FastLaneController {
     private PIDFController headingController;
 
     private double maxDeceleration;
+    private double maxVelocity;
 
     private double[] movementVector = new double[]{0.0, 0.0, 0.0};
 
@@ -42,16 +47,21 @@ public class FastLaneController {
         NONE
     }
 
-    public FastLaneController(double robotRadius, double obstacleBuffer, double maxDeceleration, Odometry odometry, PIDFController headingController) {
+    public FastLaneController(double robotRadius, double obstacleBuffer, double maxDeceleration, double maxVelocity, Odometry odometry, PIDFController headingController) {
         this.robotRadius = robotRadius;
         this.obstacleBuffer = obstacleBuffer;
         this.maxDeceleration = maxDeceleration;
+        this.maxVelocity = maxVelocity;
         this.odometry = odometry;
         this.headingController = headingController;
     }
 
     public void setWaypoints(AutonomousWaypoint... waypoints) {
         this.waypoints = waypoints;
+        if (waypoints.length == 1) {
+            throw new InvalidParameterException("You must declare at least two waypoints, but you only declared 1.");
+        }
+
         this.pathLengths = new double[waypoints.length];
         this.done = false;
 
@@ -63,6 +73,7 @@ public class FastLaneController {
 
     public void setObstacles(FieldObstacle... obstacles) {
         this.obstacles = obstacles;
+
     }
 
     public void updateHeadingPIDF(double kP, double kI, double kD, double kF) {
@@ -85,12 +96,12 @@ public class FastLaneController {
         if (index + 1 < waypoints.length) {
             // if end of path, don't increment index, don't project pose
             if (index + 1 == waypoints.length - 1) {
-                if (this.waypoints[index + 1].exit(odometry.getPose())) {
+                if (this.waypoints[index + 1].exit(odometry.getPose(), odometry.getVelocity())) {
                    done = true;
                 }
                 // else, increment index and go next point
             } else {
-                if (this.waypoints[index + 1].exit(odometry.getProjectedPose())) {
+                if (this.waypoints[index + 1].exit(odometry.getProjectedPose(), odometry.getVelocity())) {
                     index++;
                 }
             }
@@ -171,7 +182,9 @@ public class FastLaneController {
         // end of path logic
         // dist is the remaining distance to travel over all paths (robot -> path + remaining path lines)
         double dist = targetVector.minus(robotVector).magnitude()
-                + waypoints[index+1].getPoint().toVector2d().minus(targetVector).magnitude() + pathLengths[pathLengths.length - 1] - pathLengths[index];
+                + waypoints[index+1].getPoint().toVector2d().minus(targetVector).magnitude()
+                + pathLengths[pathLengths.length - 1] - pathLengths[index + 1];
+        Log.println(Log.INFO, "FastLane", "End of path distance: " + dist);
         /*
             Derivation of Math.sqrt(dist * maxDeceleration):
             v = at -> t = v/a
@@ -179,7 +192,8 @@ public class FastLaneController {
             therefore v^2 = ad -> v = sqrt(ad)
             thus sqrt(ad) is the maximum valid speed to stop in a distance d with max deceleration a (ignoring friction)
          */
-        normalized.scale(Math.min(1, Math.sqrt(dist * maxDeceleration)));
+        normalized = normalized.scale(Math.min(1, Math.sqrt(dist * maxDeceleration)/maxVelocity));
+        Log.println(Log.INFO, "FastLane", "End of path scalar: " + normalized.magnitude());
 
         // add heading prio here if necessary
         movementVector = new double[]{normalized.getX(), normalized.getY(), headingController.calculate(robotPose.getRotation().getRadians(), targetHeading)};

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.FastLane;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.geometry.Vector2d;
@@ -9,7 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.SparkFunOTOS;
 import org.firstinspires.ftc.teamcode.SparkFunOTOS.Pose2D;
 
-
+@Config
 public class OTOSLocalizer implements Odometry {
     public static double projectedScalar = 0.1;
 
@@ -27,14 +28,16 @@ public class OTOSLocalizer implements Odometry {
         otos = hwm.get(SparkFunOTOS.class, "otos");
         otos.setLinearUnit(SparkFunOTOS.LinearUnit.INCHES);
         otos.setAngularUnit(SparkFunOTOS.AngularUnit.RADIANS);
-        otos.setOffset(new SparkFunOTOS.Pose2D(4,1.5,90));
+        otos.setOffset(new SparkFunOTOS.Pose2D(4,1.5,Math.toRadians(90.5)));
         otos.setAngularScalar(360/364.0);
         otos.calibrateImu();
         otos.resetTracking();
         lastPose = new Pose2d();
+        velocity = new Pose2d();
         firstUpdate = true;
         deltaSeconds = 0.05;
         offset = new Point(0, 0, 0);
+        time = new ElapsedTime();
     }
 
     @Override
@@ -82,8 +85,10 @@ public class OTOSLocalizer implements Odometry {
 
     @Override
     public Pose2d getProjectedPose() {
-        Vector2d vec = Point.fromPose2d(getPose()).toVector2d().plus(Point.fromPose2d(velocity).toVector2d().scale(projectedScalar));
-        return new Point(vec.getX(), vec.getY(), getPose().getRotation().getRadians() + velocity.getRotation().getRadians() * projectedScalar).toPose2d();
+        Pose2d vel = new Pose2d(velocity.getX() * velocity.getX(), velocity.getY() * velocity.getY(),
+                new Rotation2d());
+        Vector2d vec = Point.fromPose2d(getPose()).toVector2d().plus(Point.fromPose2d(vel).toVector2d().scale(projectedScalar));
+        return new Point(vec.getX(), vec.getY(), getPose().getRotation().getRadians() + velocity.getRotation().getRadians() * velocity.getRotation().getRadians() * projectedScalar).toPose2d();
     }
 
     private class OTOSPoseUtil {
