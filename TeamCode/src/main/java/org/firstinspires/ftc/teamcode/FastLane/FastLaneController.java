@@ -4,13 +4,9 @@ import android.util.Log;
 
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.geometry.Pose2d;
-import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.geometry.Vector2d;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.security.InvalidParameterException;
-
-import kotlin.NotImplementedError;
 
 /**
  * Primary controller for the FastLane Path Following system.
@@ -19,7 +15,7 @@ public class FastLaneController {
 
     private double robotRadius;
     private double obstacleBuffer;
-    private Odometry odometry;
+    private AbstractLocalizer odometry;
     private AutonomousWaypoint[] waypoints;
     /**
      * The point we are current tracking is index + 1.
@@ -47,7 +43,7 @@ public class FastLaneController {
         NONE
     }
 
-    public FastLaneController(double robotRadius, double obstacleBuffer, double maxDeceleration, double maxVelocity, Odometry odometry, PIDFController headingController) {
+    public FastLaneController(double robotRadius, double obstacleBuffer, double maxDeceleration, double maxVelocity, AbstractLocalizer odometry, PIDFController headingController) {
         this.robotRadius = robotRadius;
         this.obstacleBuffer = obstacleBuffer;
         this.maxDeceleration = maxDeceleration;
@@ -141,7 +137,6 @@ public class FastLaneController {
             throw new RuntimeException("the robot can't find a path");
         }
 
-
         if (hasStrictPath) {
             // search forwards to find the fastest path
             for (double t = optimalt + 0.1; t >= optimalt; t -= 0.01) {
@@ -188,11 +183,11 @@ public class FastLaneController {
         /*
             Derivation of Math.sqrt(dist * maxDeceleration):
             v = at -> t = v/a
-            d = vt = v * v/a = v^2/a
-            therefore v^2 = ad -> v = sqrt(ad)
-            thus sqrt(ad) is the maximum valid speed to stop in a distance d with max deceleration a (ignoring friction)
+            integrating, d = 0.5at^2 = 0.5 a * v^2/a^2 = 0.5v^2/a
+            v^2 = 2ad => v = sqrt(2ad)
+            thus sqrt(2ad) is the maximum valid speed to stop in a distance d with max deceleration a (ignoring friction)
          */
-        normalized = normalized.scale(Math.min(1, Math.sqrt(dist * maxDeceleration)/maxVelocity));
+        normalized = normalized.scale(Math.min(1, Math.sqrt(2 * dist * maxDeceleration)/maxVelocity));
         Log.println(Log.INFO, "FastLane", "End of path scalar: " + normalized.magnitude());
 
         // add heading prio here if necessary
@@ -203,15 +198,15 @@ public class FastLaneController {
      * @return A boolean representing if the line between a and b collides with the obstacle map. True = collides.
      */
     private colliding checkCollisions(Vector2d a, Vector2d b) {
-        boolean isBoundary = false;
-        for (FieldObstacle obstacle : this.obstacles) {
-            if (obstacle.isColliding(a, b, robotRadius)) {
-                return colliding.STRICT;
-            } else if (obstacle.isColliding(a, b, robotRadius + obstacleBuffer)) {
-                isBoundary = true;
+            boolean isBoundary = false;
+            for (FieldObstacle obstacle : this.obstacles) {
+                if (obstacle.isColliding(a, b, robotRadius)) {
+                    return colliding.STRICT;
+                } else if (obstacle.isColliding(a, b, robotRadius + obstacleBuffer)) {
+                    isBoundary = true;
+                }
             }
-        }
-        return isBoundary ? colliding.BOUNDARY : colliding.NONE;
+            return isBoundary ? colliding.BOUNDARY : colliding.NONE;
     }
 
     private static Vector2d lerp(Vector2d a, Vector2d b, double t) {
