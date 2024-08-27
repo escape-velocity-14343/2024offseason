@@ -25,6 +25,10 @@ public class AutonomousTrackingWaypoint extends AutonomousWaypoint {
     }
 
     // TODO: this is broken and exit condition does not work as intended.
+
+    /**
+     * CURRENTLY BROKEN DO NOT USE
+     */
     @Override
     public boolean exit(Pose2d robotPose, Pose2d robotVelocity) {
         return super.exit(robotPose, robotVelocity) || Math.abs(robotPose.getRotation().getRadians() - getTargetHeading(robotPose)) < headingTolerance;

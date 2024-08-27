@@ -30,9 +30,9 @@ public class FieldObstacle {
     public boolean isColliding(Vector2d a, Vector2d b, double robotR) {
         Vector2d center = new Vector2d(x, y);
         // normalize everything
-        center = center.minus(center);
         a = a.minus(center);
         b = b.minus(center);
+        center = center.minus(center);
         Vector2d ab = b.minus(a);
         Vector2d ac = center.minus(a);
         Vector2d d = ac.project(ab).plus(a);

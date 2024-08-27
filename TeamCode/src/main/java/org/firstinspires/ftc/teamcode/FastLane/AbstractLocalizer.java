@@ -91,6 +91,10 @@ public abstract class AbstractLocalizer {
     /**
      * @return The current pose, plus the forward velocity of the robot.
      */
+    /*
+       Math: uses d = v^2/2a where a represents the deceleration from friction and v represents current velocity
+       Credit 19043 Cyliis for code concept
+     */
     public Pose2d getProjectedPose() {
         Pose2d vel = new Pose2d(Math.signum(velocity.getX()) * velocity.getX() * velocity.getX() / 2 * xFricDeceleration,
                 Math.signum(velocity.getY()) * velocity.getY() * velocity.getY() / 2 * yFricDeceleration,
@@ -106,7 +110,7 @@ public abstract class AbstractLocalizer {
     /**
      * Runs an Exponentially-Weighted Moving Average low-pass filter on velocity.
      */
-    // https://www.mcgurrin.info/robots/154/
+    // credit https://www.mcgurrin.info/robots/154/
     protected Pose2d lowPassVelocity(Pose2d deltaPos) {
         double x = velocity.getX() * velocityLowPassGain + deltaPos.getX() * (1-velocityLowPassGain);
         double y = velocity.getY() * velocityLowPassGain + deltaPos.getY() * (1-velocityLowPassGain);
