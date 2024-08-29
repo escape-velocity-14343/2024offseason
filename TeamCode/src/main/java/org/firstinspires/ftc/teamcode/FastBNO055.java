@@ -221,7 +221,7 @@ public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSync
         }
 
         @Override public FastBNO055.Parameters copy() {
-            FastBNO055.Parameters copy = new FastBNO055(this.imuOrientationOnRobot);
+            FastBNO055.Parameters copy = new FastBNO055.Parameters(this.imuOrientationOnRobot);
             copy.i2cAddr = this.i2cAddr;
             copy.calibrationData = this.calibrationData;
             copy.calibrationDataFile = this.calibrationDataFile;
