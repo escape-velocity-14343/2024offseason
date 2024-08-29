@@ -31,7 +31,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Quaternion;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 
-public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSynch, IMU.Parameters> implements IMU {
+public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSynch, FastBNO055.Parameters> implements IMU {
 
     //----------------------------------------------------------------------------------------------
     // Constants
@@ -91,13 +91,13 @@ public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSync
      * @return whether initialization was successful or not
      */
     @Override
-    protected boolean internalInitialize(@NonNull IMU.Parameters genericParameters) {
+    protected boolean internalInitialize(@NonNull FastBNO055.Parameters genericParameters) {
         // This new BNO055 driver does NOT perform a reset, so that we don't wipe out the yaw offset
         // until the user requests that we do so.
         genericParameters = genericParameters.copy();
 
         FastBNO055.Parameters parameters;
-        if (genericParameters instanceof BNO055IMUNew.Parameters) {
+        if (genericParameters instanceof FastBNO055.Parameters) {
             parameters = (FastBNO055.Parameters) genericParameters;
         } else {
             if (!genericParameters.getClass().equals(IMU.Parameters.class)) {
@@ -220,8 +220,8 @@ public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSync
             super(genericParameters.imuOrientationOnRobot);
         }
 
-        @Override public BNO055IMUNew.Parameters copy() {
-            BNO055IMUNew.Parameters copy = new BNO055IMUNew.Parameters(this.imuOrientationOnRobot);
+        @Override public FastBNO055.Parameters copy() {
+            FastBNO055.Parameters copy = new FastBNO055(this.imuOrientationOnRobot);
             copy.i2cAddr = this.i2cAddr;
             copy.calibrationData = this.calibrationData;
             copy.calibrationDataFile = this.calibrationDataFile;
