@@ -48,7 +48,7 @@ public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSync
     // State
     //----------------------------------------------------------------------------------------------
 
-    private final BetterQuaternionBasedImuHelper helper;
+    private final QuaternionBasedImuHelper helper;
     private float yawOffset = 0;
 
     //----------------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSync
 
         this.deviceClient.setI2cAddress(BNO055IMU.I2CADDR_DEFAULT);
 
-        helper = new BetterQuaternionBasedImuHelper(parameters.imuOrientationOnRobot);
+        helper = new QuaternionBasedImuHelper(parameters.imuOrientationOnRobot);
 
         if (BNO055Util.imuIsPresent(deviceClient, false)) {
             // Reset the yaw to ensure predictable behavior on app launch and Robot Restart, which
@@ -152,10 +152,10 @@ public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSync
         return (double) (lower + upper*256) * sign/16 + yawOffset;
     }
 
-    public void resetYaw(float yawOffset) {
+    /*public void resetYaw(float yawOffset) {
         helper.setYawOffsetQuaternion(yawOffset);
         this.yawOffset = yawOffset;
-    }
+    }*/
 
     @Override public YawPitchRollAngles getRobotYawPitchRollAngles() {
         return helper.getRobotYawPitchRollAngles(TAG, () -> getRawQuaternion(deviceClient));
