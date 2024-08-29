@@ -9,6 +9,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.BNO055IMUImpl;
 import com.qualcomm.hardware.bosch.BNO055IMUNew;
 import com.qualcomm.hardware.bosch.BNO055Util;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.I2cAddr;
@@ -20,6 +21,9 @@ import com.qualcomm.robotcore.hardware.I2cWarningManager;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.QuaternionBasedImuHelper;
+import com.qualcomm.robotcore.hardware.TimestampedData;
+import com.qualcomm.robotcore.hardware.configuration.annotations.DeviceProperties;
+import com.qualcomm.robotcore.hardware.configuration.annotations.I2cDeviceType;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -31,7 +35,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.Quaternion;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 
-public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSynch, FastBNO055.Parameters> implements IMU {
+import java.sql.Time;
+
+
+@I2cDeviceType
+@DeviceProperties(name = "FastBNO055", xmlTag = "fastbno")
+public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSynch, IMU.Parameters> implements IMU {
 
     //----------------------------------------------------------------------------------------------
     // Constants
@@ -56,7 +65,7 @@ public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSync
     //----------------------------------------------------------------------------------------------
 
     public FastBNO055(I2cDeviceSynch i2cDeviceSynch, boolean deviceClientIsOwned) {
-        super(i2cDeviceSynch, deviceClientIsOwned, new BNO055IMUNew.Parameters(
+        super(i2cDeviceSynch, deviceClientIsOwned, new FastBNO055.Parameters(
                 new RevHubOrientationOnRobot(
                         RevHubOrientationOnRobot.LogoFacingDirection.UP,
                         RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
@@ -91,7 +100,7 @@ public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSync
      * @return whether initialization was successful or not
      */
     @Override
-    protected boolean internalInitialize(@NonNull FastBNO055.Parameters genericParameters) {
+    protected boolean internalInitialize(@NonNull IMU.Parameters genericParameters) {
         // This new BNO055 driver does NOT perform a reset, so that we don't wipe out the yaw offset
         // until the user requests that we do so.
         genericParameters = genericParameters.copy();
@@ -141,15 +150,20 @@ public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSync
         helper.resetYaw(TAG, () -> getRawQuaternion(deviceClient), 100);
     }
 
-    public double getHeading() {
-        int lower = deviceClient.read8(EUL_DATA_X_LSB);
-        int upper = deviceClient.read8(EUL_DATA_X_MSB);
+    @Override
+    public YawPitchRollAngles getRobotYawPitchRollAngles() {
+
+        TimestampedData ts = deviceClient.readTimeStamped(EUL_DATA_X_LSB, 2);
+
+        int lower = ts.data[0];
+        int upper = ts.data[1];
         int sign = 1;
         if ((upper & 0b10000000) == 0b10000000) {
             sign = -1;
             upper -= 0b10000000;
         }
-        return (double) (lower + upper*256) * sign/16 + yawOffset;
+        double yaw = (double) (lower + upper*256) * sign/16 + yawOffset;
+        return new YawPitchRollAngles(AngleUnit.DEGREES, yaw, 0, 0, ts.nanoTime);
     }
 
     /*public void resetYaw(float yawOffset) {
@@ -157,9 +171,9 @@ public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSync
         this.yawOffset = yawOffset;
     }*/
 
-    @Override public YawPitchRollAngles getRobotYawPitchRollAngles() {
+    /*@Override public YawPitchRollAngles getRobotYawPitchRollAngles() {
         return helper.getRobotYawPitchRollAngles(TAG, () -> getRawQuaternion(deviceClient));
-    }
+    }*/
 
     @Override
     public Orientation getRobotOrientation(AxesReference reference, AxesOrder order, AngleUnit angleUnit) {

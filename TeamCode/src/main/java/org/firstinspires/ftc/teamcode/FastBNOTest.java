@@ -5,13 +5,15 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
 import java.util.concurrent.TimeUnit;
 
 @Autonomous
 public class FastBNOTest extends LinearOpMode {
 
     private ElapsedTime elapsed = new ElapsedTime();
-    private FastBNO055 imu;
+    private IMU imu;
 
     @Override
     public void runOpMode() {
@@ -23,7 +25,7 @@ public class FastBNOTest extends LinearOpMode {
 
         while (opModeIsActive() && !isStopRequested()) {
             double time0 = elapsed.time(TimeUnit.MILLISECONDS);
-            double heading = imu.getHeading();
+            double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
             double time1 = elapsed.time(TimeUnit.MILLISECONDS);
             telemetry.addData("Heading", heading);
             telemetry.addData("Time taken for imu read", time1-time0);
