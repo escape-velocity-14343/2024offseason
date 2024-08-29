@@ -17,7 +17,7 @@ public class FastBNOTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        imu = hardwareMap.get(FastBNO055.class, "imu");
+        imu = hardwareMap.get(IMU.class, "imu");
 
         imu.resetYaw();
 
