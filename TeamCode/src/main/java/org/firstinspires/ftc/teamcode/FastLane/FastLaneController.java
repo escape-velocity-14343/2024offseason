@@ -176,10 +176,12 @@ public class FastLaneController {
 
         // end of path logic
         // dist is the remaining distance to travel over all paths (robot -> path + remaining path lines)
-        double dist = targetVector.minus(robotVector).magnitude()
+        // do not project robot pose for this computation
+        double dist = targetVector.minus(Point.fromPose2d(odometry.getPose()).toVector2d()).magnitude()
                 + waypoints[index+1].getPoint().toVector2d().minus(targetVector).magnitude()
                 + pathLengths[pathLengths.length - 1] - pathLengths[index + 1];
         Log.println(Log.INFO, "FastLane", "End of path distance: " + dist);
+
         /*
             Derivation of Math.sqrt(dist * maxDeceleration):
             v = at -> t = v/a
