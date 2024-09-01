@@ -12,7 +12,7 @@ public class UnivariateGaussian {
         std = Math.sqrt(std);
     }
 
-    public UnivariateGaussian add(UnivariateGaussian g2) {
+    public UnivariateGaussian plus(UnivariateGaussian g2) {
         return new UnivariateGaussian(this.mu + g2.getMean(), this.var + g2.getVar());
     }
 

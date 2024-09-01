@@ -13,7 +13,7 @@ public class UnivariateKalman {
     }
 
     protected void predict() {
-        this.state = state.add(process);
+        this.state = state.plus(process);
     }
 
     protected void internalUpdate(double z, double R) {
