@@ -15,7 +15,7 @@ public class FastLaneController {
 
     private double robotRadius;
     private double obstacleBuffer;
-    private AbstractLocalizer odometry;
+    private Localizer odometry;
     private AutonomousWaypoint[] waypoints;
     /**
      * The point we are current tracking is index + 1.
@@ -43,7 +43,7 @@ public class FastLaneController {
         NONE
     }
 
-    public FastLaneController(double robotRadius, double obstacleBuffer, double maxDeceleration, double maxVelocity, AbstractLocalizer odometry, PIDFController headingController) {
+    public FastLaneController(double robotRadius, double obstacleBuffer, double maxDeceleration, double maxVelocity, Localizer odometry, PIDFController headingController) {
         this.robotRadius = robotRadius;
         this.obstacleBuffer = obstacleBuffer;
         this.maxDeceleration = maxDeceleration;

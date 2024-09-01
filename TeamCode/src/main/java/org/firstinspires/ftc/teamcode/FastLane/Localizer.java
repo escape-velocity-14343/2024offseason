@@ -5,7 +5,7 @@ import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.geometry.Vector2d;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-public abstract class AbstractLocalizer {
+public abstract class Localizer {
 
     public static double velocityLowPassGain = 0.1;
 
@@ -24,7 +24,7 @@ public abstract class AbstractLocalizer {
     /**
      * Default constructor. You MUST create a public-facing constructor with the necessary localizer parameters.
      */
-    protected AbstractLocalizer() {
+    protected Localizer() {
         lastPose = new Pose2d();
         velocity = new Pose2d();
         firstUpdate = true;

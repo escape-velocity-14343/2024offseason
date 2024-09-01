@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.SparkFunOTOS;
 import org.firstinspires.ftc.teamcode.SparkFunOTOS.Pose2D;
 
 @Config
-public class OTOSLocalizer extends AbstractLocalizer {
+public class OTOSLocalizer extends Localizer {
 
     private SparkFunOTOS otos;
     private OTOSPoseUtil poseUtil = new OTOSPoseUtil();
