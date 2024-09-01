@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import static com.qualcomm.hardware.bosch.BNO055Util.getRawQuaternion;
+import static com.qualcomm.hardware.bosch.BNO055Util.read8;
 import static com.qualcomm.hardware.bosch.BNO055Util.write8;
+
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -37,7 +40,8 @@ import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 
 import java.sql.Time;
 
-
+// PLEASE USE BNOEx
+@Deprecated
 @I2cDeviceType
 @DeviceProperties(name = "FastBNO055", xmlTag = "fastbno")
 public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSynch, IMU.Parameters> implements IMU {
@@ -74,7 +78,7 @@ public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSync
 
         helper = new QuaternionBasedImuHelper(parameters.imuOrientationOnRobot);
 
-        if (BNO055Util.imuIsPresent(deviceClient, false)) {
+        if (BNO055Util.imuIsPresent(deviceClient, true)) {
             // Reset the yaw to ensure predictable behavior on app launch and Robot Restart, which
             // is when hardware device objects get (re) created. On boot, it's clearer if yaw 0 is
             // set at the time when the rest of the system finishes booting, instead of within the
@@ -85,7 +89,11 @@ public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSync
                 // We call helper.resetYaw() directly instead of this.resetYaw() so that we can
                 // specify a nice long timeout
                 helper.resetYaw(TAG, () -> getRawQuaternion(deviceClient), 500);
+            } else {
+                Log.println(Log.WARN, "FastBNO", "Initialization failed");
             }
+        } else {
+            Log.println(Log.INFO, "FastBNO", "IMU not present");
         }
 
     }
@@ -105,6 +113,8 @@ public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSync
         // until the user requests that we do so.
         genericParameters = genericParameters.copy();
 
+        Log.println(Log.INFO, "FastBNO", "InternalInitialize triggered");
+
         FastBNO055.Parameters parameters;
         if (genericParameters instanceof FastBNO055.Parameters) {
             parameters = (FastBNO055.Parameters) genericParameters;
@@ -119,9 +129,12 @@ public class FastBNO055 extends I2cDeviceSynchDeviceWithParameters<I2cDeviceSync
         helper.setImuOrientationOnRobot(parameters.imuOrientationOnRobot);
 
         deviceClient.setI2cAddress(parameters.i2cAddr);
+        Log.println(Log.INFO, "FastBNO", "i2c address: " + deviceClient.getI2cAddress().get7Bit());
 
         try {
             // Make sure we have the right device
+            byte chipId = read8(deviceClient, BNO055IMU.Register.CHIP_ID);
+            Log.println(Log.INFO, "FastBNO", "Chip Id: " + chipId);
             if (!BNO055Util.imuIsPresent(deviceClient, true)) {
                 throw new BNO055Util.InitException("IMU appears to not be present");
             }
