@@ -26,8 +26,6 @@ public class MultivariateKalman {
      */
     private SimpleMatrix B;
 
-    private ElapsedTime time;
-
 
     /**
      *

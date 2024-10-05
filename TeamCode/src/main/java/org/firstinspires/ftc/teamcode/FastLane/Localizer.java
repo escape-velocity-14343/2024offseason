@@ -63,7 +63,7 @@ public abstract class Localizer {
         lastPose = pos;
 
         time.reset();
-    };
+    }
 
     public void reset() {
         reset(0, 0, 0);
